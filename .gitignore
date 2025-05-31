@@ -1,0 +1,24 @@
+# Abaikan environment virtual
+venv/
+
+# Abaikan file PyCharm/VSCode
+.idea/
+.vscode/
+
+# Abaikan file Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Abaikan file database/data lokal
+*.sqlite3
+*.db
+*.csv
+
+# Abaikan file sistem
+.DS_Store
+Thumbs.db
+
+# Abaikan log/temp
+*.log
+*.tmp
