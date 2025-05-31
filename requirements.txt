@@ -1,12 +1,6 @@
 flask
 torch
-torchvision
-accelerate
-Pillow
-argostranslate
-sentencepiece
-safetensors
 transformers
+Pillow
 googletrans==4.0.0-rc1
-fuzzywuzzy
-python-Levenshtein
+sentence-transformers
