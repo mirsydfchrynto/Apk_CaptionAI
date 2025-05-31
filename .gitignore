@@ -1,24 +1,17 @@
-# Abaikan environment virtual
+# Abaikan folder virtual environment
 venv/
-
-# Abaikan file PyCharm/VSCode
-.idea/
-.vscode/
-
-# Abaikan file Python cache
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
 
-# Abaikan file database/data lokal
-*.sqlite3
-*.db
-*.csv
+# Abaikan file besar atau model
+*.pkl
+*.pt
+*.h5
+*.ckpt
+*.dll
+*.lib
+*.pyd
 
 # Abaikan file sistem
 .DS_Store
 Thumbs.db
-
-# Abaikan log/temp
-*.log
-*.tmp
