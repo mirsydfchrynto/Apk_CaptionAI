@@ -1,17 +1,2 @@
-# Abaikan folder virtual environment
 venv/
-__pycache__/
-*.pyc
 
-# Abaikan file besar atau model
-*.pkl
-*.pt
-*.h5
-*.ckpt
-*.dll
-*.lib
-*.pyd
-
-# Abaikan file sistem
-.DS_Store
-Thumbs.db
