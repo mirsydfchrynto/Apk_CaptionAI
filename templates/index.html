@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CaptionAI - Vibes Generator</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: #f9f9f9;
+        }
+
+        .container {
+            padding-top: 40px;
+        }
+
+        .card {
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 16px;
+        }
+
+        .vibes-caption {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .caption-info {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .img-fluid {
+            border-radius: 12px;
+        }
+
+        .btn-regenerate {
+            background-color: #ffc107;
+            border: none;
+            color: #000;
+        }
+
+        .btn-regenerate:hover {
+            background-color: #e0a800;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">CaptionAI : Vibes Caption Generator</h1>
+
+        <form action="/" method="post" enctype="multipart/form-data" class="mb-4">
+            <div class="form-group">
+                <label for="images">Upload Gambar:</label>
+                <input type="file" name="images" id="images" multiple class="form-control-file" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate Caption</button>
+        </form>
+
+        {% if results %}
+            <div class="row">
+                {% for result in results %}
+                <div class="col-md-6 mb-4">
+                    <div class="card p-3">
+                        <img src="{{ result.image }}" class="img-fluid mb-3" alt="Uploaded Image">
+                        
+                        <h5 class="vibes-caption" id="vibes-{{ loop.index }}">{{ result.final_caption }}</h5>
+
+                        <p class="caption-info">Caption (EN): {{ result.caption_en }}</p>
+                        <p class="caption-info">Terjemahan: {{ result.translated }}</p>
+
+                        <form method="post" action="/regenerate" onsubmit="return regenerate(event, '{{ result.filename }}', '{{ result.caption_en }}', '{{ result.translated }}', 'vibes-{{ loop.index }}')">
+                            <button class="btn btn-regenerate btn-sm mt-2">🔄 Generate Ulang Caption</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        async function regenerate(event, filename, captionEn, translated, elementId) {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append('filename', filename);
+            formData.append('caption_en', captionEn);
+            formData.append('translated', translated);
+
+            const res = await fetch('/regenerate', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await res.json();
+            document.getElementById(elementId).textContent = data.final_caption;
+        }
+    </script>
+</body>
+</html>

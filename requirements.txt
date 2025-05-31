@@ -1,0 +1,12 @@
+flask
+torch
+torchvision
+accelerate
+Pillow
+argostranslate
+sentencepiece
+safetensors
+transformers
+googletrans==4.0.0-rc1
+fuzzywuzzy
+python-Levenshtein
