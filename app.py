@@ -60,7 +60,7 @@ vibes_embeddings = similarity_model.encode(vibes_list, convert_to_tensor=True)  
 used_vibes_map = {}  # Untuk menyimpan caption yang sudah digunakan (menghindari duplikat)
 
 
-# ===  PREPROCESSING (optional) ===
+# === PREPROCESSING (optional) ===
 def preprocess(text):
     stopwords = {"yang", "di", "ke", "dengan", "dan", "atau", "dari", "untuk", "pada", "adalah", "itu", "ini", "sebuah", "seorang"}
     text = text.lower().translate(str.maketrans('', '', string.punctuation))
