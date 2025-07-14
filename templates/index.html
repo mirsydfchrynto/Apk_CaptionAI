@@ -1,93 +1,765 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CaptionAI - Vibes Caption Generator</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <style>
-    body {
-      background-color: #f0f2f5;
-      font-family: Arial, sans-serif;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CaptionAI - Professional AI Caption Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
 
-    .container {
-      max-width: 700px;
-    }
+      body {
+        font-family: "Inter", sans-serif;
+      }
 
-    .image-preview {
-      max-width: 100%;
-      height: auto;
-      border-radius: 8px;
-    }
+      .gradient-primary {
+        background: linear-gradient(
+          135deg,
+          #4f46e5 0%,
+          #7c3aed 50%,
+          #ec4899 100%
+        );
+      }
 
-    .card {
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
+      .gradient-secondary {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      }
 
-    .vibe-caption {
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin: 10px 0;
-    }
+      .card-professional {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
 
-    .caption-sub {
-      font-size: 0.9rem;
-      color: #555;
-    }
-  </style>
-</head>
-<body>
-  <div class="container py-5">
-    <h2 class="text-center mb-4">🎯 CaptionAI - Vibes Caption Generator</h2>
+      .card-professional:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+      }
 
-    <!-- Upload Form -->
-    <form method="POST" enctype="multipart/form-data" class="text-center mb-4">
-      <input type="file" name="images" accept="image/*" multiple class="form-control mb-3" required />
-      <button type="submit" class="btn btn-primary">Generate Caption</button>
-    </form>
+      .glass-morphism {
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
 
-    <!-- Result Section -->
-    {% for result in results %}
-    <div class="card">
-      <img src="{{ result.image }}" alt="Uploaded Image" class="image-preview mb-3" />
+      .text-gradient {
+        background: linear-gradient(
+          135deg,
+          #4f46e5 0%,
+          #7c3aed 50%,
+          #ec4899 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
 
-      <p class="vibe-caption" id="vibe-{{ result.filename }}">{{ result.final_caption }}</p>
-      <p class="caption-sub"><strong>Caption (EN):</strong> {{ result.caption_en }}</p>
-      <p class="caption-sub mb-2"><strong>Terjemahan:</strong> {{ result.translated }}</p>
+      .image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.5rem;
+      }
 
-      <button class="btn btn-outline-secondary btn-sm" onclick="regenerate('{{ result.filename }}', '{{ result.caption_en }}', '{{ result.translated }}')">🔁 Generate Ulang Caption</button>
+      .image-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+        padding: 2rem;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .image-container:hover .image-overlay {
+        opacity: 1;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          #4f46e5 0%,
+          #7c3aed 50%,
+          #ec4899 100%
+        );
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px -5px rgba(79, 70, 229, 0.4);
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        transition: all 0.3s ease;
+      }
+
+      .btn-secondary:hover {
+        background: linear-gradient(135deg, #475569 0%, #334155 100%);
+        transform: translateY(-1px);
+      }
+
+      .upload-zone {
+        transition: all 0.3s ease;
+        border: 2px dashed #cbd5e1;
+      }
+
+      .upload-zone:hover {
+        border-color: #4f46e5;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      }
+
+      .upload-zone.drag-over {
+        border-color: #7c3aed;
+        background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+      }
+
+      .caption-card {
+        background: linear-gradient(
+          135deg,
+          #faf5ff 0%,
+          #f3e8ff 50%,
+          #fdf2f8 100%
+        );
+        border: 2px solid #e879f9;
+      }
+
+      .animate-fade-in {
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-slide-in {
+        animation: slideIn 0.5s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+        }
+        to {
+          transform: translateX(0);
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
+  >
+    <!-- Toast Notification -->
+    <div
+      id="toast"
+      class="fixed top-6 right-6 z-50 transform translate-x-full transition-transform duration-300"
+    >
+      <div
+        class="glass-morphism rounded-2xl shadow-2xl p-5 flex items-center gap-4 min-w-96"
+      >
+        <div id="toast-icon" class="flex-shrink-0"></div>
+        <div>
+          <p id="toast-title" class="font-bold text-slate-900 text-lg"></p>
+          <p id="toast-message" class="text-slate-600"></p>
+        </div>
+      </div>
     </div>
-    {% endfor %}
-  </div>
 
-  <script>
-    async function regenerate(filename, caption_en, translated) {
-      const formData = new FormData();
-      formData.append("filename", filename);
-      formData.append("caption_en", caption_en);
-      formData.append("translated", translated);
+    <div class="max-w-7xl mx-auto px-6 py-16">
+      <!-- Professional Header -->
+      <header class="text-center mb-20">
+        <div class="flex items-center justify-center mb-10">
+          <div
+            class="w-20 h-20 gradient-primary rounded-3xl flex items-center justify-center mr-6 shadow-2xl"
+          >
+            <svg
+              class="w-10 h-10 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              ></path>
+            </svg>
+          </div>
+          <h1 class="text-7xl font-light text-slate-900">
+            Caption<span class="font-bold text-gradient">AI</span>
+          </h1>
+        </div>
+        <div class="space-y-6">
+          <h2 class="text-3xl font-bold text-slate-800">
+            Professional AI Caption Generator
+          </h2>
+          <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+            Transform your images into compelling, engagement-driven captions
+            with cutting-edge artificial intelligence technology
+          </p>
+          <div
+            class="flex items-center justify-center gap-8 text-sm text-slate-500 font-medium"
+          >
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>AI-Powered</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span>Multi-Language</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <span>Instant Results</span>
+            </div>
+          </div>
+        </div>
+      </header>
 
-      try {
-        const response = await fetch("/regenerate", {
-          method: "POST",
-          body: formData
+      <!-- Professional Upload Section -->
+      <div
+        class="card-professional rounded-3xl shadow-2xl mb-20 overflow-hidden"
+      >
+        <div class="gradient-primary p-10">
+          <div class="text-center text-white">
+            <div
+              class="w-24 h-24 bg-white/20 rounded-3xl flex items-center justify-center mx-auto mb-8 backdrop-blur-sm"
+            >
+              <svg
+                class="w-12 h-12"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-4xl font-bold mb-4">Upload Your Images</h3>
+            <p class="text-xl text-white/90 max-w-2xl mx-auto">
+              Select high-quality images to generate professional, engaging
+              captions
+            </p>
+          </div>
+        </div>
+
+        <div class="p-10">
+          <form
+            method="POST"
+            enctype="multipart/form-data"
+            id="uploadForm"
+            class="space-y-8"
+          >
+            <div class="relative">
+              <label
+                for="imageInput"
+                class="block text-lg font-bold text-slate-800 mb-6"
+              >
+                Select Images for Caption Generation
+              </label>
+              <div
+                class="upload-zone relative rounded-3xl p-16 text-center cursor-pointer group"
+              >
+                <input
+                  type="file"
+                  name="images"
+                  id="imageInput"
+                  accept="image/*"
+                  multiple
+                  required
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+                <div class="space-y-6">
+                  <svg
+                    class="w-20 h-20 text-slate-400 mx-auto group-hover:text-indigo-600 transition-colors duration-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    ></path>
+                  </svg>
+                  <div>
+                    <h4 class="text-2xl font-bold text-slate-700 mb-3">
+                      Drag & Drop Images Here
+                    </h4>
+                    <p class="text-lg text-slate-500 mb-6">
+                      or click to browse your files
+                    </p>
+                    <div class="text-sm text-slate-400 space-y-1">
+                      <p>Supported formats: JPG, PNG, WebP</p>
+                      <p>Maximum file size: 10MB per image</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              id="generateBtn"
+              class="btn-primary w-full text-white font-bold py-6 px-10 rounded-2xl text-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              <span
+                id="generateBtnText"
+                class="flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6 mr-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  ></path>
+                </svg>
+                Generate Professional Captions
+              </span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Professional Results Section -->
+      {% if results %}
+      <div class="space-y-16">
+        <div class="text-center mb-16">
+          <h3 class="text-5xl font-bold text-slate-900 mb-6">
+            ✨ Your AI-Generated Captions
+          </h3>
+          <p class="text-2xl text-slate-600 max-w-3xl mx-auto">
+            Professional captions crafted with advanced AI to maximize
+            engagement and impact
+          </p>
+        </div>
+
+        {% for result in results %}
+        <div
+          class="card-professional rounded-3xl shadow-2xl overflow-hidden animate-fade-in"
+        >
+          <div class="grid lg:grid-cols-5 gap-0">
+            <!-- Enhanced Image Section -->
+            <div class="lg:col-span-2 p-10">
+              <div class="image-container shadow-2xl">
+                <img
+                  src="{{ url_for('static', filename='uploads/' + result.filename) }}"
+                  alt="{{ result.filename }}"
+                  class="w-full h-96 lg:h-[600px] object-cover rounded-3xl"
+                />
+                <div class="image-overlay">
+                  <div class="space-y-2">
+                    <p class="font-bold text-lg">{{ result.filename }}</p>
+                    <p class="text-sm opacity-90">AI Analysis Complete</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Enhanced Caption Section -->
+            <div class="lg:col-span-3 p-10 flex flex-col justify-center">
+              <!-- Professional Caption Display -->
+              <div class="mb-10">
+                <div class="flex items-center justify-between mb-8">
+                  <div class="flex items-center space-x-4">
+                    <div
+                      class="w-16 h-16 gradient-primary rounded-3xl flex items-center justify-center shadow-lg"
+                    >
+                      <svg
+                        class="w-8 h-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <span class="text-2xl font-bold text-gradient"
+                        >AI CAPTION</span
+                      >
+                      <p class="text-sm text-slate-500 font-medium">
+                        Professional Grade
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    class="copy-btn p-4 text-slate-400 hover:text-white hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 rounded-2xl transition-all duration-300 shadow-lg"
+                    data-text="{{ result.final_caption }}"
+                    title="Copy professional caption"
+                  >
+                    <svg
+                      class="w-7 h-7"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Main Caption Card -->
+                <div class="caption-card rounded-3xl p-10 shadow-xl">
+                  <p
+                    id="vibe-{{ loop.index }}"
+                    class="text-3xl lg:text-4xl font-bold text-slate-900 leading-relaxed text-center"
+                  >
+                    {{ result.final_caption }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Professional Action Button -->
+              <div class="mb-10">
+                <button
+                  class="regen-btn btn-primary w-full px-10 py-6 text-white rounded-2xl font-bold text-xl transition-all duration-300 flex items-center justify-center space-x-4 shadow-xl"
+                  data-filename="{{ result.filename }}"
+                  data-caption-en="{{ result.caption_en }}"
+                  data-translated="{{ result.translated }}"
+                  data-index="{{ loop.index }}"
+                >
+                  <svg
+                    class="w-7 h-7"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    ></path>
+                  </svg>
+                  <span>Generate Alternative Caption</span>
+                </button>
+              </div>
+
+              <!-- Professional Info Cards -->
+              <div class="grid md:grid-cols-2 gap-6">
+                <div class="glass-morphism rounded-2xl p-6 shadow-lg">
+                  <div class="flex items-center gap-3 mb-4">
+                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span
+                      class="text-sm font-bold text-blue-600 uppercase tracking-wider"
+                      >Original English</span
+                    >
+                  </div>
+                  <p class="text-slate-700 leading-relaxed font-medium">
+                    {{ result.caption_en }}
+                  </p>
+                </div>
+                <div class="glass-morphism rounded-2xl p-6 shadow-lg">
+                  <div class="flex items-center gap-3 mb-4">
+                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span
+                      class="text-sm font-bold text-green-600 uppercase tracking-wider"
+                      >Indonesian Translation</span
+                    >
+                  </div>
+                  <p class="text-slate-700 leading-relaxed font-medium">
+                    {{ result.translated }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% else %}
+      <!-- Professional Empty State -->
+      <div class="text-center py-24">
+        <div
+          class="w-40 h-40 gradient-primary rounded-full flex items-center justify-center mx-auto mb-10 shadow-2xl"
+        >
+          <svg
+            class="w-20 h-20 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+            ></path>
+          </svg>
+        </div>
+        <h3 class="text-4xl font-bold text-slate-900 mb-6">
+          Ready to Create Professional Captions?
+        </h3>
+        <p
+          class="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8"
+        >
+          Upload your images and experience the power of AI-driven caption
+          generation for maximum social media impact
+        </p>
+        <div class="flex items-center justify-center gap-8 text-slate-500">
+          <div class="flex items-center gap-2">
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+            <span>Instant Generation</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+            <span>Multiple Languages</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+            <span>Professional Quality</span>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Enhanced JavaScript -->
+    <script>
+      // Professional Toast System
+      function showToast(title, message, type) {
+        const toast = document.getElementById("toast");
+        const toastIcon = document.getElementById("toast-icon");
+        const toastTitle = document.getElementById("toast-title");
+        const toastMessage = document.getElementById("toast-message");
+
+        const icons = {
+          success:
+            '<div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>',
+          error:
+            '<div class="w-10 h-10 bg-red-500 rounded-2xl flex items-center justify-center shadow-lg"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></div>',
+          info: '<div class="w-10 h-10 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>',
+        };
+
+        toastIcon.innerHTML = icons[type];
+        toastTitle.textContent = title;
+        toastMessage.textContent = message;
+
+        toast.classList.remove("translate-x-full");
+        toast.classList.add("translate-x-0", "animate-slide-in");
+
+        setTimeout(() => {
+          toast.classList.remove("translate-x-0");
+          toast.classList.add("translate-x-full");
+        }, 5000);
+      }
+
+      // Enhanced Drag & Drop
+      const uploadZone = document.querySelector(".upload-zone");
+
+      uploadZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadZone.classList.add("drag-over");
+      });
+
+      uploadZone.addEventListener("dragleave", () => {
+        uploadZone.classList.remove("drag-over");
+      });
+
+      uploadZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove("drag-over");
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          document.getElementById("imageInput").files = files;
+          showToast(
+            "Files Ready! 🚀",
+            `${files.length} image(s) selected for processing`,
+            "success"
+          );
+        }
+      });
+
+      // Enhanced Regenerate Functionality
+      document.addEventListener("click", function (e) {
+        if (e.target.closest(".regen-btn")) {
+          const btn = e.target.closest(".regen-btn");
+          const filename = btn.getAttribute("data-filename");
+          const captionEn = btn.getAttribute("data-caption-en");
+          const translated = btn.getAttribute("data-translated");
+          const index = btn.getAttribute("data-index");
+
+          const originalHtml = btn.innerHTML;
+          btn.disabled = true;
+          btn.innerHTML =
+            '<svg class="w-7 h-7 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg><span>Generating Professional Caption...</span>';
+
+          const formData = new FormData();
+          formData.append("filename", filename);
+          formData.append("caption_en", captionEn);
+          formData.append("translated", translated);
+
+          fetch("/regenerate", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.final_caption) {
+                document.getElementById("vibe-" + index).textContent =
+                  data.final_caption;
+                showToast(
+                  "New Caption Generated! ✨",
+                  "Fresh professional caption created successfully",
+                  "success"
+                );
+              } else {
+                showToast(
+                  "Generation Failed",
+                  "Unable to create new caption. Please try again.",
+                  "error"
+                );
+              }
+            })
+            .catch((error) => {
+              showToast(
+                "System Error",
+                "Technical issue encountered. Please retry.",
+                "error"
+              );
+              console.error("Error:", error);
+            })
+            .finally(() => {
+              btn.disabled = false;
+              btn.innerHTML = originalHtml;
+            });
+        }
+      });
+
+      // Enhanced Copy Functionality
+      document.addEventListener("click", function (e) {
+        if (e.target.closest(".copy-btn")) {
+          const btn = e.target.closest(".copy-btn");
+          const text = btn.getAttribute("data-text");
+
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => {
+              showToast(
+                "Caption Copied! 📋",
+                "Professional caption ready for sharing",
+                "success"
+              );
+            });
+          } else {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            showToast(
+              "Caption Copied! 📋",
+              "Professional caption ready for sharing",
+              "success"
+            );
+          }
+        }
+      });
+
+      // Enhanced Form Submission
+      document
+        .getElementById("uploadForm")
+        .addEventListener("submit", function () {
+          const btn = document.getElementById("generateBtn");
+          const btnText = document.getElementById("generateBtnText");
+
+          btn.disabled = true;
+          btnText.innerHTML =
+            '<svg class="w-6 h-6 mr-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Processing Images with AI...';
+
+          showToast(
+            "Processing Started ✨",
+            "Analyzing images and generating professional captions...",
+            "info"
+          );
         });
 
-        const data = await response.json();
-        if (data.final_caption) {
-          document.getElementById("vibe-" + filename).innerText = data.final_caption;
-        } else {
-          alert("Gagal generate ulang caption.");
-        }
-      } catch (err) {
-        alert("Terjadi kesalahan.");
-        console.error(err);
-      }
-    }
-  </script>
-</body>
+      // Enhanced File Selection Feedback
+      document
+        .getElementById("imageInput")
+        .addEventListener("change", function (e) {
+          const files = e.target.files;
+          if (files.length > 0) {
+            showToast(
+              "Images Selected! 🎯",
+              `${files.length} professional image(s) ready for caption generation`,
+              "success"
+            );
+          }
+        });
+    </script>
+  </body>
 </html>
